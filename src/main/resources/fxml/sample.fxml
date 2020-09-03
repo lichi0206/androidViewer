@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXListView?>
+<?import com.jfoenix.controls.JFXProgressBar?>
+<?import com.jfoenix.controls.JFXTextArea?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.effect.Blend?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<AnchorPane prefHeight="768.0" prefWidth="1365.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ml.sample.Controller">
+   <GridPane alignment="TOP_CENTER" layoutX="731.0" layoutY="10.0" prefHeight="401.0" prefWidth="326.0" AnchorPane.topAnchor="10.0">
+      <columnConstraints>
+         <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="182.0" minWidth="10.0" prefWidth="149.0" />
+         <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="164.0" minWidth="10.0" prefWidth="140.0" />
+      </columnConstraints>
+      <rowConstraints>
+         <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
+         <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
+         <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
+         <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
+         <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
+         <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
+      </rowConstraints>
+      <children>
+          <JFXButton fx:id="getDevices" onAction="#getAllDevices" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="Refresh Devices" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+          <JFXButton fx:id="wakeupDevice" onAction="#setWakeupDevice" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="Wakeup device" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+         <JFXButton fx:id="focusAppInfo" onAction="#setFocusAppInfo" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="Focus Window" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+         <JFXButton fx:id="activitiesFromTop2Bottom" onAction="#setActivitiesFromTop2Bottom" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="All Activities" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+         <JFXButton fx:id="clearResult" onAction="#setClearResult" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="Clear Result" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+         <JFXTextField fx:id="textPassword" promptText="Text password if needed" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+         <JFXButton fx:id="screenshot" onAction="#setScreenshot" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="Screenshot" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+         <JFXCheckBox fx:id="autoRefresh" text="Auto Refresh" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+      </children>
+   </GridPane>
+    <TitledPane fx:id="deviceListParent" collapsible="false" layoutX="439.0" layoutY="11.0" prefHeight="401.0" prefWidth="276.0" text="Device List" underline="true" AnchorPane.leftAnchor="439.0" AnchorPane.topAnchor="10.0">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="277.0" prefWidth="205.0">
+             <children>
+                 <JFXListView fx:id="deviceList" layoutX="-1.0" layoutY="-1.0" prefHeight="377.0" prefWidth="276.0" />
+             </children>
+        </AnchorPane>
+    </TitledPane>
+    <TitledPane fx:id="resultParent" collapsible="false" layoutX="439.0" layoutY="422.0" prefHeight="339.0" prefWidth="920.0" text="Result" underline="true" AnchorPane.bottomAnchor="6.0" AnchorPane.leftAnchor="439.0" AnchorPane.rightAnchor="8.0">
+        <JFXTextArea fx:id="result" editable="false" prefHeight="313.0" prefWidth="924.0" style="-fx-background-color: #DDDDDD;" />
+    </TitledPane>
+   <TitledPane fx:id="imgParent" animated="false" collapsible="false" layoutX="14.0" layoutY="11.0" prefHeight="750.0" prefWidth="412.0" text="Device" AnchorPane.bottomAnchor="6.0" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="10.0">
+     <content>
+               <ImageView fx:id="deviceCap" fitHeight="736.0" fitWidth="414.0" layoutX="-2.0" pickOnBounds="true" preserveRatio="true">
+                  <effect>
+                     <Blend />
+                  </effect>
+               </ImageView>
+     </content>
+   </TitledPane>
+   <JFXProgressBar fx:id="globalProgressBar" layoutY="-1.0" prefHeight="3.0" prefWidth="1368.0" progress="0.0" />
+   <TitledPane fx:id="deviceInfoParent" collapsible="false" layoutX="1068.0" layoutY="12.0" prefHeight="401.0" prefWidth="285.0" text="Device Info" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="10.0">
+      <content>
+         <JFXListView fx:id="deviceInfo" prefHeight="401.0" prefWidth="274.0" />
+      </content>
+   </TitledPane>
+</AnchorPane>
