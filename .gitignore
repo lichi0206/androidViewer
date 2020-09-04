@@ -15,6 +15,7 @@ target/
 *.iml
 *.ipr
 /out
+/Exe4J
 
 ### Logs ###
 /logs
