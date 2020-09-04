@@ -14,7 +14,8 @@ target/
 *.iws
 *.iml
 *.ipr
+/out
 
-### MH Automation Logs ###
+### Logs ###
 /logs
 
