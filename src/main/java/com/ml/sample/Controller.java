@@ -16,14 +16,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -33,6 +32,18 @@ import java.util.stream.Stream;
 public class Controller implements Initializable {
 
     LocalCommandExecutor localCommandExecutor = new LocalCommandExecutorImpl();
+
+    List<String> deviceInfoRowList = Stream.of(
+            "[ro.product.brand]",
+            "[ro.product.device]",
+            "[ro.product.first_api_level]",
+            "[ro.product.locale]",
+            "[ro.product.manufacturer]",
+            "[ro.product.model]",
+            "[ro.product.name]",
+            "[ro.build.version.release]",
+            "[ro.build.version.sdk]")
+            .collect(Collectors.toList());
 
     @FXML
     private Pane rootPane;
@@ -248,13 +259,6 @@ public class Controller implements Initializable {
         }
     }
 
-    public void deviceScreenshot2() {
-        Instant a1 = Instant.now();
-        deviceCap.setImage(new Image("file:/D:/CL/Grocery/androidViewer/screenshots/202.png"));
-        Instant a2 = Instant.now();
-        log.info("A: " + (a2.toEpochMilli() - a1.toEpochMilli()));
-    }
-
     public void deviceScreenshot() {
         String selectedDevice = selectedDevice();
         if (selectedDevice.equals("NoDeviceSelected")) {
@@ -291,6 +295,45 @@ public class Controller implements Initializable {
         }
     }
 
+
+    public String upperCase(String str) {
+        char[] ch = str.toCharArray();
+        if (ch[0] >= 'a' && ch[0] <= 'z') {
+            ch[0] = (char) (ch[0] - 32);
+        }
+        return new String(ch);
+    }
+
+    public void filterProductInfo(String productInfo) {
+        result.appendText("Get Device Info: \n");
+        HashMap<String, String> deviceInfoRow = new HashMap<String, String>();
+
+        Arrays.stream(productInfo.split("\n"))
+                .filter(s -> s.startsWith("[ro.product") || s.startsWith("[ro.build"))
+                .map(s -> {
+                    String StringKey = s.split(":")[0].trim();
+                    if (deviceInfoRowList.contains(StringKey)) {
+                        return s;
+                    } else {
+                        return "";
+                    }
+                })
+                .filter(s -> !s.isEmpty())
+                .map(s -> {
+                    String key = s.split(":")[0].trim().replace("[", "").replace("]", "");
+                    String value = s.split(":")[1].trim().replace("[", "").replace("]", "");
+                    return String.join(": ", Arrays.stream(key.split("\\."))
+                            .reduce((a, b) -> b)
+                            .orElse(""), value);
+                })
+                .map(this::upperCase)
+                .forEach((s) -> {
+                    result.appendText(s + "\n");
+                    deviceInfo.getItems().add(s);
+                });
+        result.appendText("\n");
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         getDeviceList().forEach(deviceList.getItems()::add);
@@ -304,37 +347,10 @@ public class Controller implements Initializable {
         deviceList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                List<String> deviceInfoRow = Stream.of(
-                        "brand",
-                        "device",
-                        "first_api_level",
-                        "locale",
-                        "manufacturer",
-                        "model",
-                        "name")
-                        .collect(Collectors.toList());
-                ExecuteResult executeResult = localCommandExecutor.executeCommand("adb shell getprop", 2000);
-                Arrays.stream(executeResult.getExecuteOut().split("\n"))
-                        .filter((s) -> s.contains("product") && s.contains("vendor") && !s.contains("cpu"))
-                        .map((s) -> s.replace("[", "").replace("]", "").trim())
-                        .map((s) -> {
-                            return Arrays.stream(s.split("\\."))
-                                    .reduce((a, b) -> b)
-                                    .orElse("");
-                        })
-                        .map((s) -> {
-                            return Arrays.stream(s.split(":"))
-                                    .map(s1 -> {
-                                        char[] cs=s1.toCharArray();
-                                        cs[0]-=32;
-                                        return String.valueOf(cs);
-                                    })
-                                    .collect(Collectors.joining(": "));
-                        })
-                        .forEach((s) -> {
-                            System.out.println(s);
-                            deviceInfo.getItems().add(s);
-                        });
+                if (oldValue == null && newValue != null) {
+                    ExecuteResult executeResult = localCommandExecutor.executeCommand("adb shell getprop", 2000);
+                    filterProductInfo(executeResult.getExecuteOut());
+                }
             }
         });
     }
