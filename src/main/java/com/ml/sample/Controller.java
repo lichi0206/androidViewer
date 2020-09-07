@@ -8,14 +8,18 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -46,7 +50,7 @@ public class Controller implements Initializable {
             .collect(Collectors.toList());
 
     @FXML
-    private Pane rootPane;
+    private AnchorPane rootPane;
 
     @FXML
     private TitledPane imgParent;
@@ -96,6 +100,9 @@ public class Controller implements Initializable {
     @FXML
     private ListView deviceInfo;
 
+    @FXML
+    private Button chooseFile;
+
     public void setScreenshot() {
         asyncDeviceScreenshot();
     }
@@ -134,6 +141,9 @@ public class Controller implements Initializable {
             result.appendText("Please select one device in device list \n");
             log.error("Please select one device in device list");
         } else {
+            if (!wakeupDevice.isDisabled()) {
+                wakeupDevice.setDisable(true);
+            }
             globalProgressBar.setProgress(-1);
             Service<String> service = new Service<String>() {
                 @Override
@@ -164,7 +174,29 @@ public class Controller implements Initializable {
 
             service.setOnSucceeded((WorkerStateEvent event) -> {
                 globalProgressBar.setProgress(0);
-                log.info("Complete!");
+                if (wakeupDevice.isDisabled()) {
+                    wakeupDevice.setDisable(false);
+                }
+                result.appendText("Wakeup device successful!");
+                log.info("Wakeup device successful!");
+            });
+
+            service.setOnFailed((WorkerStateEvent event) -> {
+                globalProgressBar.setProgress(0);
+                if (wakeupDevice.isDisabled()) {
+                    wakeupDevice.setDisable(false);
+                }
+                result.appendText("Error occurred!\n");
+                log.info("Error occurred!");
+            });
+
+            service.setOnCancelled((WorkerStateEvent event) -> {
+                globalProgressBar.setProgress(0);
+                if (wakeupDevice.isDisabled()) {
+                    wakeupDevice.setDisable(false);
+                }
+                result.appendText("Task Canceled!\n");
+                log.info("Task canceled!");
             });
 
             service.start();
@@ -249,10 +281,22 @@ public class Controller implements Initializable {
 
             service.setOnSucceeded((WorkerStateEvent event) -> {
                 globalProgressBar.setProgress(0);
-                log.info("Complete!");
+                log.info("Screenshot Complete!");
                 if (autoRefresh.isSelected()) {
                     asyncDeviceScreenshot();
                 }
+            });
+
+            service.setOnFailed((WorkerStateEvent event) -> {
+                globalProgressBar.setProgress(0);
+                result.appendText("Error occurred!\n");
+                log.info("Error occurred!");
+            });
+
+            service.setOnCancelled((WorkerStateEvent event) -> {
+                globalProgressBar.setProgress(0);
+                result.appendText("Task Canceled!\n");
+                log.info("Task canceled!");
             });
 
             service.start();
@@ -295,7 +339,6 @@ public class Controller implements Initializable {
         }
     }
 
-
     public String upperCase(String str) {
         char[] ch = str.toCharArray();
         if (ch[0] >= 'a' && ch[0] <= 'z') {
@@ -334,6 +377,73 @@ public class Controller implements Initializable {
         result.appendText("\n");
     }
 
+    public void installApp(String device, String apkFile) {
+        globalProgressBar.setProgress(-1);
+        Service<String> service = new Service<String>() {
+            @Override
+            protected Task<String> createTask() {
+                return new Task<String>() {
+                    @Override
+                    protected String call() throws Exception {
+                        result.appendText("Performing Streamed Install...\n");
+                        ExecuteResult executeResult = localCommandExecutor.executeCommand("adb -s " + device + " install " + apkFile, 120000);
+                        return "success";
+                    }
+                };
+            }
+        };
+
+        service.setOnSucceeded((WorkerStateEvent event) -> {
+            globalProgressBar.setProgress(0);
+            if (chooseFile.isDisabled()) {
+                chooseFile.setDisable(false);
+            }
+            result.appendText("App: \"" + apkFile + "\" installed successful!\n");
+            log.info("App installed successful!");
+        });
+
+        service.setOnFailed((WorkerStateEvent event) -> {
+            globalProgressBar.setProgress(0);
+            if (chooseFile.isDisabled()) {
+                chooseFile.setDisable(false);
+            }
+            result.appendText("Error occurred!\n");
+            log.info("Error occurred!");
+        });
+
+        service.setOnCancelled((WorkerStateEvent event) -> {
+            globalProgressBar.setProgress(0);
+            if (chooseFile.isDisabled()) {
+                chooseFile.setDisable(false);
+            }
+            result.appendText("Task Canceled!\n");
+            log.info("Task canceled!");
+        });
+
+        service.start();
+    }
+
+    public void setChooseFile() {
+        String selectedDevice = selectedDevice();
+        if (selectedDevice.equals("NoDeviceSelected")) {
+            result.appendText("Please select one device in device list \n");
+            log.error("Please select one device in device list");
+        } else {
+            if (!chooseFile.isDisabled()) {
+                chooseFile.setDisable(true);
+            }
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Choose APK file");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("APK files", "*.apk"));
+            File apkFile = fileChooser.showOpenDialog(rootPane.getScene().getWindow());
+            if (apkFile != null) {
+                installApp(selectedDevice, apkFile.getAbsolutePath());
+            } else {
+                chooseFile.setDisable(false);
+            }
+        }
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         getDeviceList().forEach(deviceList.getItems()::add);
@@ -351,6 +461,13 @@ public class Controller implements Initializable {
                     ExecuteResult executeResult = localCommandExecutor.executeCommand("adb shell getprop", 2000);
                     filterProductInfo(executeResult.getExecuteOut());
                 }
+            }
+        });
+
+        chooseFile.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                setChooseFile();
             }
         });
     }

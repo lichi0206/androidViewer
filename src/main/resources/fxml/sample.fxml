@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane prefHeight="768.0" prefWidth="1365.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ml.sample.Controller">
+<AnchorPane fx:id="rootPane" prefHeight="768.0" prefWidth="1365.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ml.sample.Controller">
    <GridPane alignment="TOP_CENTER" layoutX="731.0" layoutY="10.0" prefHeight="401.0" prefWidth="326.0" AnchorPane.topAnchor="10.0">
       <columnConstraints>
          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="182.0" minWidth="10.0" prefWidth="149.0" />
@@ -26,6 +26,7 @@
          <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
          <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
          <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
+         <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
          <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="SOMETIMES" />
       </rowConstraints>
       <children>
@@ -33,10 +34,11 @@
           <JFXButton fx:id="wakeupDevice" onAction="#setWakeupDevice" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="Wakeup device" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
          <JFXButton fx:id="focusAppInfo" onAction="#setFocusAppInfo" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="Focus Window" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
          <JFXButton fx:id="activitiesFromTop2Bottom" onAction="#setActivitiesFromTop2Bottom" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="All Activities" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-         <JFXButton fx:id="clearResult" onAction="#setClearResult" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="Clear Result" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+         <JFXButton fx:id="clearResult" onAction="#setClearResult" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="Clear Result" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
          <JFXTextField fx:id="textPassword" promptText="Text password if needed" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
          <JFXButton fx:id="screenshot" onAction="#setScreenshot" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="Screenshot" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
          <JFXCheckBox fx:id="autoRefresh" text="Auto Refresh" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+         <JFXButton fx:id="chooseFile" onAction="#setScreenshot" prefWidth="150.0" style="-fx-text-fill:WHITE;-fx-background-color:#5264AE;-fx-font-size:14px;" text="Install App" textAlignment="CENTER" GridPane.rowIndex="5" />
       </children>
    </GridPane>
     <TitledPane fx:id="deviceListParent" collapsible="false" layoutX="439.0" layoutY="11.0" prefHeight="401.0" prefWidth="276.0" text="Device List" underline="true" AnchorPane.leftAnchor="439.0" AnchorPane.topAnchor="10.0">
