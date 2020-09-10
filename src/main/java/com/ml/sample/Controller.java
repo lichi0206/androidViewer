@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,7 +41,6 @@ public class Controller implements Initializable {
     List<String> deviceInfoRowList = Stream.of(
             "[ro.product.brand]",
             "[ro.product.device]",
-            "[ro.product.first_api_level]",
             "[ro.product.locale]",
             "[ro.product.manufacturer]",
             "[ro.product.model]",
@@ -444,6 +444,42 @@ public class Controller implements Initializable {
         }
     }
 
+    public void asyncServiceGetCommandResult(String command, long timeout, Consumer<ExecuteResult> consumer) {
+        globalProgressBar.setProgress(-1);
+        Service<ExecuteResult> service = new Service<ExecuteResult>() {
+            @Override
+            protected Task<ExecuteResult> createTask() {
+                return new Task<ExecuteResult>() {
+                    @Override
+                    protected ExecuteResult call() throws Exception {
+                        ExecuteResult executeResult = localCommandExecutor.executeCommand(command, timeout);
+                        return executeResult;
+                    }
+                };
+            }
+        };
+
+        service.setOnSucceeded((WorkerStateEvent event) -> {
+            consumer.accept(service.getValue());
+            globalProgressBar.setProgress(0);
+            log.info("Task completed!");
+        });
+
+        service.setOnFailed((WorkerStateEvent event) -> {
+            globalProgressBar.setProgress(0);
+            result.appendText("Error occurred!\n");
+            log.info("Error occurred!");
+        });
+
+        service.setOnCancelled((WorkerStateEvent event) -> {
+            globalProgressBar.setProgress(0);
+            result.appendText("Task Canceled!\n");
+            log.info("Task canceled!");
+        });
+
+        service.start();
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         getDeviceList().forEach(deviceList.getItems()::add);
@@ -458,8 +494,23 @@ public class Controller implements Initializable {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 if (oldValue == null && newValue != null) {
-                    ExecuteResult executeResult = localCommandExecutor.executeCommand("adb shell getprop", 2000);
+                    String deviceSelected = newValue.toString().split(" ")[0].trim();
+                    ExecuteResult executeResult = localCommandExecutor.executeCommand("adb -s " + deviceSelected + " shell getprop", 2000);
                     filterProductInfo(executeResult.getExecuteOut());
+                    asyncServiceGetCommandResult("adb -s " + deviceSelected + " shell wm size", 2000,
+                            (ExecuteResult executeResult1) -> {
+                                Arrays.stream(executeResult1.getExecuteOut().split("\n")).forEach(s -> {
+                                    result.appendText(s + "\n");
+                                    deviceInfo.getItems().add(s);
+                                });
+                            });
+                    asyncServiceGetCommandResult("adb -s " + deviceSelected + " shell wm density", 2000,
+                            (ExecuteResult executeResult1) -> {
+                                Arrays.stream(executeResult1.getExecuteOut().split("\n")).forEach(s -> {
+                                    result.appendText(s + "\n");
+                                    deviceInfo.getItems().add(s);
+                                });
+                            });
                 }
             }
         });
