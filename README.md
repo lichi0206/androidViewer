@@ -21,6 +21,36 @@ There are several reasons why such a tool is made:
 * Most of the mobile products we develop are hybrid applications, and we need such a tool to assist development.
 * Automated test developers also need such an auxiliary tool to help development.
 
+### Prerequest
+
+The Android viewer is developed using Java, and based on ADB tools, so you need to download and install following prerequests:
+
+* Download and install [JDK 1.8+](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html), configure environment variables is also a request, you can refer this [page](https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/) to complete the installation and configuration.
+* Download and install [Android SDK](https://developer.android.com/studio), also, configure environment variables is a request, you can refer this [page](https://developer.android.com/studio/command-line/variables) to complete the configuration.
+
+Please make sure you install and configure above two request correctly, to make sure you finish the configurations, you can using the following command to test.
+
+#### Test JDK
+
+* Open command line tool, for Windows 10, you can use `Ctrl + R` + `cmd` to open the command line tool.
+
+* ```bash
+  java -version
+  javac -version
+  ```
+
+* IF the correct version number is printed, the configuration is successfully.
+
+#### Test Android SDK
+
+* Open command line tool
+
+* ```bash
+  adb version
+  ```
+
+* IF the correct version number is printed, the configuration is successfully.
+
 ### Features
 
 #### Real-time screenshot
